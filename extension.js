@@ -1,36 +1,47 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
 const vscode = require('vscode');
-
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
 
 /**
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
+    console.log('Dyslexia Mitigation extension is now active!');
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "dyslexia-mitigation" is now active!');
+    // Register command to change font size
+    let setFontSize = vscode.commands.registerCommand('dyslexia-mitigation.setFontSize', async function () {
+        const input = await vscode.window.showInputBox({ prompt: 'Enter font size (e.g., 16)' });
+        if (input) {
+            vscode.workspace.getConfiguration('editor').update('fontSize', parseInt(input), true);
+            vscode.window.showInformationMessage(`Font size set to ${input}`);
+        }
+    });
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with  registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('dyslexia-mitigation.helloWorld', function () {
-		// The code you place here will be executed every time your command is executed
+    // Register command to change font family
+    let setFontFamily = vscode.commands.registerCommand('dyslexia-mitigation.setFontFamily', async function () {
+        const input = await vscode.window.showInputBox({ prompt: 'Enter font family (e.g., Arial, Verdana)' });
+        if (input) {
+            vscode.workspace.getConfiguration('editor').update('fontFamily', input, true);
+            vscode.window.showInformationMessage(`Font family set to ${input}`);
+        }
+    });
 
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from dyslexia-mitigation!');
-	});
+    // Register command to change line spacing
+    let setLineSpacing = vscode.commands.registerCommand('dyslexia-mitigation.setLineSpacing', async function () {
+        const input = await vscode.window.showInputBox({ prompt: 'Enter line height (e.g., 1.5)' });
+        if (input) {
+            vscode.workspace.getConfiguration('editor').update('lineHeight', parseFloat(input), true);
+            vscode.window.showInformationMessage(`Line spacing set to ${input}`);
+        }
+    });
 
-	context.subscriptions.push(disposable);
+    context.subscriptions.push(setFontSize, setFontFamily, setLineSpacing);
 }
 
-// This method is called when your extension is deactivated
+/**
+ * This method is called when the extension is deactivated.
+ */
 function deactivate() {}
 
 module.exports = {
-	activate,
-	deactivate
-}
+    activate,
+    deactivate
+};

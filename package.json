@@ -1,21 +1,33 @@
 {
   "name": "dyslexia-mitigation",
-  "displayName": "dyslexia-mitigation",
-  "description": "Help users with dyslexia use VS Code",
+  "displayName": "Dyslexia Mitigation",
+  "description": "Helps users with dyslexia by allowing text customization in VS Code.",
   "version": "0.0.1",
   "engines": {
     "vscode": "^1.98.0"
   },
-  "categories": [
-    "Other"
+  "categories": ["Other"],
+  "activationEvents": [
+    "onCommand:dyslexia-mitigation.setFontSize",
+    "onCommand:dyslexia-mitigation.setFontFamily",
+    "onCommand:dyslexia-mitigation.setLineSpacing"
   ],
-  "activationEvents": [],
   "main": "./extension.js",
   "contributes": {
-    "commands": [{
-      "command": "dyslexia-mitigation.helloWorld",
-      "title": "Hello World"
-    }]
+    "commands": [
+      {
+        "command": "dyslexia-mitigation.setFontSize",
+        "title": "Set Font Size for Dyslexia"
+      },
+      {
+        "command": "dyslexia-mitigation.setFontFamily",
+        "title": "Set Font Family for Dyslexia"
+      },
+      {
+        "command": "dyslexia-mitigation.setLineSpacing",
+        "title": "Set Line Spacing for Dyslexia"
+      }
+    ]
   },
   "scripts": {
     "lint": "eslint .",
