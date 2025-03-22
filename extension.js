@@ -1,36 +1,106 @@
-// The module 'vscode' contains the VS Code extensibility API
-// Import the module and reference it with the alias vscode in your code below
-const vscode = require('vscode');
-
-// This method is called when your extension is activated
-// Your extension is activated the very first time the command is executed
+const vscode = require("vscode");
+const fs = require("fs");
+const path = require("path");
 
 /**
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
+  console.log("Dyslexia Mitigation extension is now active!");
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "dyslexia-mitigation" is now active!');
+  let disposable = vscode.commands.registerCommand("dyslexia-mitigation.openFloatingMenu", () => {
+    const panel = vscode.window.createWebviewPanel(
+      "floatingMenu",
+      "Dyslexia Helper",
+      vscode.ViewColumn.Active,
+      {
+        enableScripts: true,
+        retainContextWhenHidden: true,
+      }
+    );
 
-	// The command has been defined in the package.json file
-	// Now provide the implementation of the command with  registerCommand
-	// The commandId parameter must match the command field in package.json
-	const disposable = vscode.commands.registerCommand('dyslexia-mitigation.helloWorld', function () {
-		// The code you place here will be executed every time your command is executed
+    // Get path to webview HTML file
+    const htmlPath = path.join(context.extensionPath, "webview", "menu.html");
+    let htmlContent;
 
-		// Display a message box to the user
-		vscode.window.showInformationMessage('Hello World from dyslexia-mitigation!');
-	});
+    try {
+      htmlContent = fs.readFileSync(htmlPath, "utf8");
+    } catch (err) {
+      htmlContent = getBackupWebviewContent();
+      console.error("Failed to load webview HTML:", err);
+      vscode.window.showErrorMessage("Failed to load dyslexia helper menu. Using backup version.");
+    }
 
-	context.subscriptions.push(disposable);
+    panel.webview.html = htmlContent;
+    panel.reveal(vscode.ViewColumn.Active);
+
+    panel.webview.onDidReceiveMessage(
+      (message) => {
+        switch (message.command) {
+          case "startPomodoro":
+            vscode.window.showInformationMessage(
+              `Starting Pomodoro timer for ${message.minutes} minutes`
+            );
+            return;
+          case "dictionaryLookup":
+            vscode.window.showInformationMessage("Looking up selected word");
+            return;
+          case "readAloud":
+            vscode.window.showInformationMessage("Toggling read aloud");
+            return;
+          case "toggleFont":
+            vscode.window.showInformationMessage(
+              `${message.enabled ? "Enabling" : "Disabling"} custom font: ${message.font}`
+            );
+            return;
+          case "changeFont":
+            vscode.window.showInformationMessage(`Changing font to ${message.font}`);
+            return;
+          case "syllableSplit":
+            vscode.window.showInformationMessage("Splitting text into syllables");
+            return;
+          case "geminiShorten":
+            vscode.window.showInformationMessage("Shortening text with Gemini");
+            return;
+          // Handle other commands
+        }
+      },
+      undefined,
+      context.subscriptions
+    );
+  });
+
+  context.subscriptions.push(disposable);
 }
 
-// This method is called when your extension is deactivated
+// Fallback in case the HTML file can't be loaded
+function getBackupWebviewContent() {
+  return `<!DOCTYPE html>
+    <html lang="en">
+    <head>
+      <meta charset="UTF-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Dyslexia Helper</title>
+      <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        button { margin: 10px 0; padding: 10px; width: 100%; }
+      </style>
+    </head>
+    <body>
+      <h1>Dyslexia Helper</h1>
+      <p>Error loading full interface. Using simplified version.</p>
+      <button onclick="vscode.postMessage({command: 'toggleDyslexiaMode'})">Toggle Dyslexia Mode</button>
+      <button onclick="vscode.postMessage({command: 'increaseFontSize'})">Increase Font Size</button>
+      <script>
+        const vscode = acquireVsCodeApi();
+      </script>
+    </body>
+    </html>`;
+}
+
 function deactivate() {}
 
 module.exports = {
-	activate,
-	deactivate
-}
+  activate,
+  deactivate,
+};
