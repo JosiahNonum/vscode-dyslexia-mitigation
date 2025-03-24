@@ -1,106 +1,147 @@
-const vscode = require("vscode");
-const fs = require("fs");
-const path = require("path");
+const vscode = require('vscode');
+
+// Added commands onto this extension.js file
 
 /**
  * @param {vscode.ExtensionContext} context
  */
 function activate(context) {
-  console.log("Dyslexia Mitigation extension is now active!");
+    console.log('Dyslexia Mitigation extension is now active!');
 
-  let disposable = vscode.commands.registerCommand("dyslexia-mitigation.openFloatingMenu", () => {
-    const panel = vscode.window.createWebviewPanel(
-      "floatingMenu",
-      "Dyslexia Helper",
-      vscode.ViewColumn.Active,
-      {
-        enableScripts: true,
-        retainContextWhenHidden: true,
-      }
-    );
+    // Register command to change font size
+    let setFontSize = vscode.commands.registerCommand('dyslexia-mitigation.setFontSize', async function () {
+        const input = await vscode.window.showInputBox({ prompt: 'Enter font size (e.g., 16)' });
+        if (input) {
+            vscode.workspace.getConfiguration('editor').update('fontSize', parseInt(input), true);
+            vscode.window.showInformationMessage(`Font size set to ${input}`);
+        }
+    });
 
-    // Get path to webview HTML file
-    const htmlPath = path.join(context.extensionPath, "webview", "menu.html");
-    let htmlContent;
+    // Register command to change font family
+    let setFontFamily = vscode.commands.registerCommand('dyslexia-mitigation.setFontFamily', async function () {
+        const input = await vscode.window.showInputBox({ prompt: 'Enter font family (e.g., Arial, Verdana)' });
+        if (input) {
+            vscode.workspace.getConfiguration('editor').update('fontFamily', input, true);
+            vscode.window.showInformationMessage(`Font family set to ${input}`);
+        }
+    });
 
-    try {
-      htmlContent = fs.readFileSync(htmlPath, "utf8");
-    } catch (err) {
-      htmlContent = getBackupWebviewContent();
-      console.error("Failed to load webview HTML:", err);
-      vscode.window.showErrorMessage("Failed to load dyslexia helper menu. Using backup version.");
+    // Register command to change line spacing
+    let setLineSpacing = vscode.commands.registerCommand('dyslexia-mitigation.setLineSpacing', async function () {
+        const input = await vscode.window.showInputBox({ prompt: 'Enter line height (e.g., 1.5)' });
+        if (input) {
+            vscode.workspace.getConfiguration('editor').update('lineHeight', parseFloat(input), true);
+            vscode.window.showInformationMessage(`Line spacing set to ${input}`);
+        }
+    });
+    // text to speech Assitance
+    let textToSpeech = vscode.commands.registerCommand('dyslexia-mitigation.textToSpeech', async function () {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            vscode.window.showInformationMessage('No active text editor');
+            return;
+        }
+        const text = editor.document.getText(editor.selection);
+        if (!text) {
+            vscode.window.showInformationMessage('No text selected');
+            return;
+        }
+        const uri = vscode.Uri.parse(`https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=en&client=tw-ob`);
+        vscode.env.openExternal(uri);
+    });
+
+    // TODO: still in progress , command is not showing up in the command palette
+    // attempting to use npm install syllable, probably need to add a plugin
+    // Syllable breakdown command
+
+    let syllableBreakdown = vscode.commands.registerCommand('dyslexia-mitigation.syllableBreakdown', function () {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            vscode.window.showErrorMessage('No active text editor.');
+            return;
+        }
+
+        const selection = editor.selection;
+        const text = editor.document.getText(selection);
+        
+        if (!text) {
+            vscode.window.showErrorMessage('No text selected.');
+            return;
+        }
+
+        // Simple syllable breakdown (for demonstration purposes)
+        const syllabifiedText = text.replace(/([aeiouy]+)/gi, '-$1');
+
+        editor.edit(editBuilder => {
+            editBuilder.replace(selection, syllabifiedText);
+        });
+
+        vscode.window.showInformationMessage('Syllables Added to Selected Text');
+    });
+
+    
+// TODO: still implementing the following features, need to add the logic for each feature, and test
+// if the commands can work without plugin
+
+let enableReadingGuide = vscode.commands.registerCommand('dyslexia-mitigation.enableReadingGuide', function () {
+    vscode.window.showInformationMessage('Reading Guide Enabled');
+    // Implement the reading guide overlay logic here
+});
+
+// Disable Reading Guide
+let disableReadingGuide = vscode.commands.registerCommand('dyslexia-mitigation.disableReadingGuide', function () {
+    vscode.window.showInformationMessage('Reading Guide Disabled');
+    // Remove overlay logic here
+});
+
+let textMaskingDecorationType = vscode.window.createTextEditorDecorationType({
+    backgroundColor: 'rgba(0, 0, 0, 0.7)'
+});
+let textMaskingEnabled = false;
+
+let toggleTextMasking = vscode.commands.registerCommand('dyslexia-mitigation.toggleTextMasking', function () {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+        vscode.window.showInformationMessage('No active text editor');
+        return;
     }
 
-    panel.webview.html = htmlContent;
-    panel.reveal(vscode.ViewColumn.Active);
+    textMaskingEnabled = !textMaskingEnabled;
 
-    panel.webview.onDidReceiveMessage(
-      (message) => {
-        switch (message.command) {
-          case "startPomodoro":
-            vscode.window.showInformationMessage(
-              `Starting Pomodoro timer for ${message.minutes} minutes`
-            );
-            return;
-          case "dictionaryLookup":
-            vscode.window.showInformationMessage("Looking up selected word");
-            return;
-          case "readAloud":
-            vscode.window.showInformationMessage("Toggling read aloud");
-            return;
-          case "toggleFont":
-            vscode.window.showInformationMessage(
-              `${message.enabled ? "Enabling" : "Disabling"} custom font: ${message.font}`
-            );
-            return;
-          case "changeFont":
-            vscode.window.showInformationMessage(`Changing font to ${message.font}`);
-            return;
-          case "syllableSplit":
-            vscode.window.showInformationMessage("Splitting text into syllables");
-            return;
-          case "geminiShorten":
-            vscode.window.showInformationMessage("Shortening text with Gemini");
-            return;
-          // Handle other commands
+    if (textMaskingEnabled) {
+        let ranges = [];
+        for (let i = 0; i < editor.document.lineCount; i++) {
+            if (i !== editor.selection.active.line) {
+                const line = editor.document.lineAt(i);
+                ranges.push(new vscode.Range(line.range.start, line.range.end));
+            }
         }
-      },
-      undefined,
-      context.subscriptions
-    );
-  });
+        editor.setDecorations(textMaskingDecorationType, ranges);
+        vscode.window.showInformationMessage('Text Masking Enabled');
+    } else {
+        editor.setDecorations(textMaskingDecorationType, []);
+        vscode.window.showInformationMessage('Text Masking Disabled');
+    }
+});
 
-  context.subscriptions.push(disposable);
+let cursorTrackingEnabled = false;
+
+let toggleCursorTracking = vscode.commands.registerCommand('dyslexia-mitigation.toggleCursorTracking', function () {
+    cursorTrackingEnabled = !cursorTrackingEnabled;
+    vscode.workspace.getConfiguration('editor').update('cursorStyle', cursorTrackingEnabled ? 'block' : 'line', true);
+    vscode.workspace.getConfiguration('editor').update('cursorBlinking', cursorTrackingEnabled ? 'phase' : 'solid', true);
+    vscode.window.showInformationMessage(cursorTrackingEnabled ? 'Cursor Tracking Enabled' : 'Cursor Tracking Disabled');
+});
+
+context.subscriptions.push(setFontSize, setFontFamily, setLineSpacing, textToSpeech, syllableBreakdown, enableReadingGuide, disableReadingGuide, toggleTextMasking, toggleCursorTracking);
 }
 
-// Fallback in case the HTML file can't be loaded
-function getBackupWebviewContent() {
-  return `<!DOCTYPE html>
-    <html lang="en">
-    <head>
-      <meta charset="UTF-8">
-      <meta name="viewport" content="width=device-width, initial-scale=1.0">
-      <title>Dyslexia Helper</title>
-      <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        button { margin: 10px 0; padding: 10px; width: 100%; }
-      </style>
-    </head>
-    <body>
-      <h1>Dyslexia Helper</h1>
-      <p>Error loading full interface. Using simplified version.</p>
-      <button onclick="vscode.postMessage({command: 'toggleDyslexiaMode'})">Toggle Dyslexia Mode</button>
-      <button onclick="vscode.postMessage({command: 'increaseFontSize'})">Increase Font Size</button>
-      <script>
-        const vscode = acquireVsCodeApi();
-      </script>
-    </body>
-    </html>`;
-}
-
+/**
+ * This method is called when the extension is deactivated.
+ */
 function deactivate() {}
 
 module.exports = {
-  activate,
-  deactivate,
+    activate,
+    deactivate
 };
