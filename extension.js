@@ -52,6 +52,7 @@ function activate(context) {
 
     // TODO: still in progress , command is not showing up in the command palette
     // attempting to use npm install syllable, probably need to add a plugin
+    
     // Syllable breakdown command
 
     let syllableBreakdown = vscode.commands.registerCommand('dyslexia-mitigation.syllableBreakdown', function () {
@@ -94,6 +95,7 @@ let disableReadingGuide = vscode.commands.registerCommand('dyslexia-mitigation.d
     // Remove overlay logic here
 });
 
+// TODO : Manny will implement this feature
 // Toggle Text Masking (e.g., hides text except for a focused area)
 let toggleTextMasking = vscode.commands.registerCommand('dyslexia-mitigation.toggleTextMasking', function () {
     vscode.window.showInformationMessage('Toggled Text Masking');
