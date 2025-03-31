@@ -10,6 +10,7 @@
     "Other"
   ],
   "activationEvents": [
+    "onCommand:dyslexia-mitigation.showMenu",
     "onCommand:dyslexia-mitigation.setFontSize",
     "onCommand:dyslexia-mitigation.setFontFamily",
     "onCommand:dyslexia-mitigation.setLineSpacing",
@@ -23,6 +24,10 @@
   "main": "./extension.js",
   "contributes": {
     "commands": [
+      {
+        "command": "dyslexia-mitigation.showMenu",
+        "title": "Show Dyslexia Mitigation Menu"
+      },
       {
         "command": "dyslexia-mitigation.setFontSize",
         "title": "Set Font Size for Dyslexia"

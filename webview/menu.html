@@ -16,50 +16,16 @@
         margin-top: 20px;
       }
 
-      .toggle-container {
+      .option-row {
         display: flex;
         align-items: center;
         margin: 10px 0;
+        flex-wrap: wrap;
       }
 
-      .switch {
-        position: relative;
-        display: inline-block;
-        width: 40px;
-        height: 20px;
+      .option-label {
+        min-width: 150px;
         margin-right: 10px;
-      }
-
-      .slider {
-        position: absolute;
-        cursor: pointer;
-        top: 0;
-        left: 0;
-        right: 0;
-        bottom: 0;
-        background-color: #ccc;
-        transition: 0.4s;
-        border-radius: 34px;
-      }
-
-      .slider:before {
-        position: absolute;
-        content: "";
-        height: 16px;
-        width: 16px;
-        left: 2px;
-        bottom: 2px;
-        background-color: white;
-        transition: 0.4s;
-        border-radius: 50%;
-      }
-
-      .toggle-input:checked + .switch .slider {
-        background-color: #2196f3;
-      }
-
-      .toggle-input:checked + .switch .slider:before {
-        transform: translateX(20px);
       }
 
       input,
@@ -69,6 +35,10 @@
         padding: 8px;
         border-radius: 4px;
         border: 1px solid #ccc;
+      }
+
+      select {
+        min-width: 120px;
       }
 
       button {
@@ -100,64 +70,66 @@
     <h2>Pomodoro Timer</h2>
     <div id="pomodoroTimer">00:00</div>
     <button id="startPomodoro">Start Timer</button>
-    <label for="pomodoroInput">Set Timer (minutes):</label>
-    <input type="number" id="pomodoroInput" min="1" max="60" value="25" />
-
-    <h2>Dictionary Lookup</h2>
-    <button id="dictionaryLookupButton">Look Up Word</button>
-
-    <h2>Read Aloud</h2>
-    <button id="readAloudToggle">Toggle On Highlighted Text-to-Speech</button>
-
-    <h2>Font Switcher</h2>
-    <div class="toggle-container">
-      <input type="checkbox" id="fontSwitcherToggle" class="toggle-input" />
-      <label class="switch" for="fontSwitcherToggle">
-        <span class="slider round"></span>
-      </label>
-      <span class="toggle-label">Enable Custom Font</span>
+    <div class="option-row">
+      <label class="option-label" for="pomodoroInput">Set Timer (minutes):</label>
+      <input type="number" id="pomodoroInput" min="1" max="60" value="25" />
     </div>
-    <select id="fontSelect">
-      <option value="OpenDyslexic">OpenDyslexic</option>
-      <option value="Arial">Arial</option>
-      <option value="Comic Sans MS">Comic Sans MS</option>
-      <option value="Times New Roman">Times New Roman</option>
-    </select>
+
+    <h2>Dictionary & Reading Features</h2>
+    <button id="dictionaryLookupButton">Look Up Selected Word</button>
+    <button id="readAloudToggle">Read Selected Text Aloud</button>
+    <button id="syllableButton">Split Selected Text into Syllables</button>
+    <button id="geminiShortenButton">Shorten Selected Text</button>
+
+    <h2>Font Settings</h2>
+    <div class="option-row">
+      <label class="option-label" for="fontFamily">Custom Font:</label>
+      <select id="fontFamily">
+        <option value="DEFAULT">System Default</option>
+        <option value="OpenDyslexic">OpenDyslexic</option>
+        <option value="Arial">Arial</option>
+        <option value="Comic Sans MS">Comic Sans MS</option>
+        <option value="Times New Roman">Times New Roman</option>
+      </select>
+    </div>
 
     <hr />
 
-    <h2>Distraction Reducer</h2>
-    <div class="toggle-container">
-      <input type="checkbox" id="distractionReducerToggle" class="toggle-input" />
-      <label class="switch" for="distractionReducerToggle">
-        <span class="slider round"></span>
-      </label>
-      <span class="toggle-label">Enable Distraction Reduction</span>
+    <h2>Reading Aids</h2>
+    <div class="option-row">
+      <label class="option-label" for="distractionReducer">Distraction Reducer:</label>
+      <select id="distractionReducer">
+        <option value="off">Off</option>
+        <option value="on">On</option>
+      </select>
     </div>
 
-    <h2>Tracking Aid</h2>
-    <div class="toggle-container">
-      <input type="checkbox" id="trackingAidToggle" class="toggle-input" />
-      <label class="switch" for="trackingAidToggle">
-        <span class="slider round"></span>
-      </label>
-      <span class="toggle-label">Enable Tracking Aid</span>
+    <div class="option-row">
+      <label class="option-label" for="trackingAid">Cursor Tracking Aid:</label>
+      <select id="trackingAid">
+        <option value="off">Off</option>
+        <option value="on">On</option>
+      </select>
     </div>
-    <label for="trackingAidColor">Box Color:</label>
-    <input type="color" id="trackingAidColor" value="#0096ff" />
 
-    <h2>Text Adjustments</h2>
-    <div class="toggle-container">
-      <input type="checkbox" id="textAdjustmentsToggle" class="toggle-input" />
-      <label class="switch" for="textAdjustmentsToggle">
-        <span class="slider round"></span>
-      </label>
-      <span class="toggle-label">Enable Text Adjustments</span>
+    <div class="option-row">
+      <label class="option-label" for="trackingAidColor">Tracking Color:</label>
+      <input type="color" id="trackingAidColor" value="#0096ff" />
     </div>
-    <div class="adjustments">
-      <label for="fontSizeSelect">Font Size (px):</label>
-      <select id="fontSizeSelect">
-        <option value="DEFAULT">DEFAULT</option>
+
+    <div class="option-row">
+      <label class="option-label" for="lineFocus">Line Focus:</label>
+      <select id="lineFocus">
+        <option value="off">Off</option>
+        <option value="on">On</option>
+      </select>
+    </div>
+
+    <h2>Text Appearance</h2>
+    <div class="option-row">
+      <label class="option-label" for="fontSize">Font Size (px):</label>
+      <select id="fontSize">
+        <option value="DEFAULT">Default</option>
         <option value="12">12</option>
         <option value="14">14</option>
         <option value="16">16</option>
@@ -166,10 +138,12 @@
         <option value="22">22</option>
         <option value="24">24</option>
       </select>
+    </div>
 
-      <label for="letterSpacingSelect">Letter Spacing (px):</label>
-      <select id="letterSpacingSelect">
-        <option value="DEFAULT">DEFAULT</option>
+    <div class="option-row">
+      <label class="option-label" for="letterSpacing">Letter Spacing (px):</label>
+      <select id="letterSpacing">
+        <option value="DEFAULT">Default</option>
         <option value="0">0</option>
         <option value="0.5">0.5</option>
         <option value="1">1</option>
@@ -178,29 +152,23 @@
         <option value="2.5">2.5</option>
         <option value="3">3</option>
       </select>
+    </div>
 
-      <label for="lineHeightSelect">Line Height:</label>
-      <select id="lineHeightSelect">
-        <option value="DEFAULT">DEFAULT</option>
+    <div class="option-row">
+      <label class="option-label" for="lineHeight">Line Height:</label>
+      <select id="lineHeight">
+        <option value="DEFAULT">Default</option>
         <option value="1.25">1.75</option>
         <option value="1.5">2.0</option>
         <option value="1.75">2.25</option>
         <option value="2.0">2.5</option>
       </select>
+    </div>
 
-      <label for="textAlignSelect">Text Alignment:</label>
-      <select id="textAlignSelect">
-        <option value="DEFAULT">DEFAULT</option>
-        <option value="left">Left</option>
-        <option value="center">Center</option>
-        <option value="right">Right</option>
-        <option value="justify">Justify</option>
-        <option value="initial">Initial</option>
-      </select>
-
-      <label for="maxLineWidthSelect">Max Line Width (px):</label>
-      <select id="maxLineWidthSelect">
-        <option value="DEFAULT">DEFAULT</option>
+    <div class="option-row">
+      <label class="option-label" for="maxLineWidth">Max Line Width (px):</label>
+      <select id="maxLineWidth">
+        <option value="DEFAULT">Default</option>
         <option value="600">1000</option>
         <option value="700">1500</option>
         <option value="800">2000</option>
@@ -212,32 +180,23 @@
     </div>
 
     <h2>Color Overlay</h2>
-    <div class="toggle-container">
-      <input type="checkbox" id="overlayToggle" class="toggle-input" />
-      <label class="switch" for="overlayToggle">
-        <span class="slider round"></span>
-      </label>
-      <span class="toggle-label">Enable Overlay</span>
-    </div>
-    <label for="overlayColor">Choose Color</label>
-    <input type="color" id="overlayColor" value="#ffffff" />
-    <label for="overlayOpacity">Opacity</label>
-    <input type="range" id="overlayOpacity" min="0" max="1" step="0.1" value="0.2" />
-
-    <h2>Line Focus</h2>
-    <div class="toggle-container">
-      <input type="checkbox" id="lineFocusToggle" class="toggle-input" />
-      <label class="switch" for="lineFocusToggle">
-        <span class="slider round"></span>
-      </label>
-      <span class="toggle-label">Enable Line Focus</span>
+    <div class="option-row">
+      <label class="option-label" for="overlay">Overlay:</label>
+      <select id="overlay">
+        <option value="off">Off</option>
+        <option value="on">On</option>
+      </select>
     </div>
 
-    <h2>Syllable Splitter</h2>
-    <button id="syllableButton">Split into Syllables</button>
+    <div class="option-row">
+      <label class="option-label" for="overlayColor">Color:</label>
+      <input type="color" id="overlayColor" value="#ffffff" />
+    </div>
 
-    <h2>Shorten with Gemini</h2>
-    <button id="geminiShortenButton">Shorten Text</button>
+    <div class="option-row">
+      <label class="option-label" for="overlayOpacity">Opacity:</label>
+      <input type="range" id="overlayOpacity" min="0" max="1" step="0.1" value="0.2" />
+    </div>
 
     <script>
       const vscode = acquireVsCodeApi();
@@ -258,24 +217,99 @@
         vscode.postMessage({ command: "readAloud" });
       });
 
-      document.getElementById("fontSwitcherToggle").addEventListener("change", (e) => {
+      document.getElementById("fontFamily").addEventListener("change", (e) => {
         vscode.postMessage({
-          command: "toggleFont",
-          enabled: e.target.checked,
-          font: document.getElementById("fontSelect").value,
+          command: "changeFont",
+          font: e.target.value,
         });
       });
 
-      document.getElementById("fontSelect").addEventListener("change", (e) => {
-        if (document.getElementById("fontSwitcherToggle").checked) {
-          vscode.postMessage({
-            command: "changeFont",
-            font: e.target.value,
-          });
-        }
+      // Distraction reducer (text masking)
+      document.getElementById("distractionReducer").addEventListener("change", (e) => {
+        vscode.postMessage({
+          command: "toggleDistractionReducer",
+          enabled: e.target.value === "on",
+        });
       });
 
-      // Similar listeners for other controls would go here
+      // Tracking aid (cursor tracking)
+      document.getElementById("trackingAid").addEventListener("change", (e) => {
+        vscode.postMessage({
+          command: "toggleTrackingAid",
+          enabled: e.target.value === "on",
+        });
+      });
+
+      // Tracking aid color
+      document.getElementById("trackingAidColor").addEventListener("change", (e) => {
+        vscode.postMessage({
+          command: "changeTrackingAidColor",
+          color: e.target.value,
+        });
+      });
+
+      // Text adjustments
+      document.getElementById("fontSize").addEventListener("change", (e) => {
+        vscode.postMessage({
+          command: "changeFontSize",
+          value: e.target.value,
+        });
+      });
+
+      document.getElementById("letterSpacing").addEventListener("change", (e) => {
+        vscode.postMessage({
+          command: "changeLetterSpacing",
+          value: e.target.value,
+        });
+      });
+
+      document.getElementById("lineHeight").addEventListener("change", (e) => {
+        vscode.postMessage({
+          command: "changeLineHeight",
+          value: e.target.value,
+        });
+      });
+
+      document.getElementById("maxLineWidth").addEventListener("change", (e) => {
+        vscode.postMessage({
+          command: "changeMaxLineWidth",
+          value: e.target.value,
+        });
+      });
+
+      // Color overlay
+      document.getElementById("overlay").addEventListener("change", (e) => {
+        vscode.postMessage({
+          command: "toggleOverlay",
+          enabled: e.target.value === "on",
+          color: document.getElementById("overlayColor").value,
+          opacity: parseFloat(document.getElementById("overlayOpacity").value),
+        });
+      });
+
+      document.getElementById("overlayColor").addEventListener("change", (e) => {
+        vscode.postMessage({
+          command: "changeOverlayColor",
+          color: e.target.value,
+          opacity: parseFloat(document.getElementById("overlayOpacity").value),
+        });
+      });
+
+      document.getElementById("overlayOpacity").addEventListener("input", (e) => {
+        vscode.postMessage({
+          command: "changeOverlayOpacity",
+          color: document.getElementById("overlayColor").value,
+          opacity: parseFloat(e.target.value),
+        });
+      });
+
+      // Line focus
+      document.getElementById("lineFocus").addEventListener("change", (e) => {
+        vscode.postMessage({
+          command: "toggleLineFocus",
+          enabled: e.target.value === "on",
+        });
+      });
 
       document.getElementById("syllableButton").addEventListener("click", () => {
         vscode.postMessage({ command: "syllableSplit" });
