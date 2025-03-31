@@ -124,12 +124,61 @@ let toggleCursorTracking = vscode.commands.registerCommand('dyslexia-mitigation.
     vscode.window.showInformationMessage(cursorTrackingEnabled ? 'Cursor Tracking Enabled' : 'Cursor Tracking Disabled');
 });
 
-context.subscriptions.push(setFontSize, setFontFamily, setLineSpacing, textToSpeech, enableReadingGuide, disableReadingGuide, toggleTextMasking, toggleCursorTracking);
+
+// Register command to toggle color overlay
+let colorOverlayDecoration = vscode.window.createTextEditorDecorationType({
+    color: 'rgb(0, 255, 30)' // Changes text color to orange-red
+});
+
+// This variable will track the state of the color overlay
+let colorOverlayEnabled = false;
+
+let toggleColorOverlay = vscode.commands.registerCommand('dyslexia-mitigation.toggleColorOverlay', function () {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+        vscode.window.showInformationMessage('No active text editor');
+        return;
+    }
+
+    colorOverlayEnabled = !colorOverlayEnabled;
+
+    if (colorOverlayEnabled) {
+        let ranges = [new vscode.Range(0, 0, editor.document.lineCount, 0)];
+        editor.setDecorations(colorOverlayDecoration, ranges);
+        vscode.window.showInformationMessage('Color Overlay Enabled');
+    } else {
+        editor.setDecorations(colorOverlayDecoration, []);
+        vscode.window.showInformationMessage('Color Overlay Disabled');
+    }
+});
+
+// Register command to toggle theme background
+let toggleThemeBackground = vscode.commands.registerCommand('dyslexia-mitigation.toggleThemeBackground', async function () {
+    const config = vscode.workspace.getConfiguration("workbench");
+
+    // Define overlay color
+    const overlayColor = "#000000"; // Light yellow
+    let currentColors = config.get("colorCustomizations") || {};
+    let currentBackground = currentColors["editor.background"];
+
+    // Toggle background color
+    let newColors = { ...currentColors, "editor.background": currentBackground ? undefined : overlayColor };
+
+    // Apply update
+    await config.update("colorCustomizations", newColors, vscode.ConfigurationTarget.Global);
+
+    vscode.window.showInformationMessage(currentBackground ? "Theme Overlay Disabled" : "Theme Overlay Enabled");
+});
+
+
+
+context.subscriptions.push(setFontSize, setFontFamily, setLineSpacing, textToSpeech, enableReadingGuide, disableReadingGuide, toggleTextMasking, toggleCursorTracking, toggleColorOverlay, toggleThemeBackground);
 }
 
 /**
  * This method is called when the extension is deactivated.
  */
+
 function deactivate() {}
 
 module.exports = {

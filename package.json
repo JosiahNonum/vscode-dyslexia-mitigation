@@ -19,6 +19,7 @@
     "onCommand:dyslexia-mitigation.disableReadingGuide",
     "onCommand:dyslexia-mitigation.toggleTextMasking",
     "onCommand:dyslexia-mitigation.toggleCursorTracking"
+
   ],
   "main": "./extension.js",
   "contributes": {
@@ -54,6 +55,14 @@
       {
         "command": "dyslexia-mitigation.toggleCursorTracking",
         "title": "Toggle Cursor Tracking"
+      },
+      {
+        "command": "dyslexia-mitigation.toggleColorOverlay",
+        "title": "Toggle Color Overlay"
+      },
+      {
+        "command": "dyslexia-mitigation.toggleThemeBackground",
+        "title": "Toggle Theme Background"
       }
     ]
   },
