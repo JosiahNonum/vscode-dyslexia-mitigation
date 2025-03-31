@@ -19,7 +19,6 @@
     "onCommand:dyslexia-mitigation.disableReadingGuide",
     "onCommand:dyslexia-mitigation.toggleTextMasking",
     "onCommand:dyslexia-mitigation.toggleCursorTracking"
-  
   ],
   "main": "./extension.js",
   "contributes": {
@@ -42,7 +41,7 @@
       },
       {
         "command": "dyslexia-mitigation.syllableBreakdown",
-        "tittle": "Break Text into Syllables"
+        "title": "Break Text into Syllables"
       },
       {
         "command": "dyslexia-mitigation.enableReadingGuide",

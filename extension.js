@@ -49,50 +49,95 @@ function activate(context) {
         const uri = vscode.Uri.parse(`https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(text)}&tl=en&client=tw-ob`);
         vscode.env.openExternal(uri);
     });
+    
 
-    // TODO: still in progress , command is not showing up in the command palette
-    // attempting to use npm install syllable, probably need to add a plugin
-    // Syllable breakdown command
-
-    let syllableBreakdown = vscode.commands.registerCommand('dyslexia-mitigation.syllableBreakdown', function () {
-        const editor = vscode.window.activeTextEditor;
-        if (!editor) {
-            vscode.window.showErrorMessage('No active text editor.');
-            return;
-        }
-
-        const selection = editor.selection;
-        const text = editor.document.getText(selection);
+    function countSyllables(word) {
+        word = word.toLowerCase();
+        if (word.length <= 3) return 1;
         
-        if (!text) {
-            vscode.window.showErrorMessage('No text selected.');
-            return;
-        }
-
-        // Simple syllable breakdown (for demonstration purposes)
-        const syllabifiedText = text.replace(/([aeiouy]+)/gi, '-$1');
-
-        editor.edit(editBuilder => {
-            editBuilder.replace(selection, syllabifiedText);
+        // Basic syllable counting rules
+        word = word.replace(/(?:[^laeiouy]|ed|[^laeiouy]e)$/, '');
+        word = word.replace(/^y/, '');
+        const syllables = word.match(/[aeiouy]{1,2}/g);
+        return syllables ? syllables.length : 1;
+    }
+    
+        // Syllable Breakdown Command
+        let syllableBreakdown = vscode.commands.registerCommand('dyslexia-mitigation.syllableBreakdown', function() {
+            const editor = vscode.window.activeTextEditor;
+            if (!editor) {
+                vscode.window.showErrorMessage('No active text editor.');
+                return;
+            }
+    
+            const selection = editor.selection;
+            const text = editor.document.getText(selection);
+    
+            if (!text) {
+                vscode.window.showErrorMessage('No text selected.');
+                return;
+            }
+    
+            try {
+                const words = text.split(/\s+/);
+                const syllabifiedText = words.map(word => {
+                    if (word.match(/[^a-zA-Z]/)) return word;
+                    const syllables = countSyllables(word);
+                    if (syllables > 1) {
+                        // Simple hyphenation between vowel groups
+                        return word.replace(/([aeiouy]+)/gi, '$1-').replace(/-$/, '');
+                    }
+                    return word;
+                }).join(' ');
+    
+                editor.edit(editBuilder => {
+                    editBuilder.replace(selection, syllabifiedText);
+                });
+    
+                vscode.window.showInformationMessage('Syllables added to selected text.');
+            } catch (error) {
+                console.error("Error processing syllables:", error);
+                vscode.window.showErrorMessage('Failed to process syllables.');
+            }
         });
 
-        vscode.window.showInformationMessage('Syllables Added to Selected Text');
-    });
-
+  
     
 // TODO: still implementing the following features, need to add the logic for each feature, and test
 // if the commands can work without plugin
 
-let enableReadingGuide = vscode.commands.registerCommand('dyslexia-mitigation.enableReadingGuide', function () {
-    vscode.window.showInformationMessage('Reading Guide Enabled');
-    // Implement the reading guide overlay logic here
+let readingGuideDecorationType = vscode.window.createTextEditorDecorationType({
+    backgroundColor: 'rgba(255, 255, 0, 0.3)'
 });
 
-// Disable Reading Guide
-let disableReadingGuide = vscode.commands.registerCommand('dyslexia-mitigation.disableReadingGuide', function () {
-    vscode.window.showInformationMessage('Reading Guide Disabled');
-    // Remove overlay logic here
+let enableReadingGuide = vscode.commands.registerCommand('dyslexia-mitigation.enableReadingGuide', function () {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+        vscode.window.showInformationMessage('No active text editor');
+        return;
+    }
+    
+    let highlightLine = () => {
+        if (!editor) return;
+        let range = editor.document.lineAt(editor.selection.active.line).range;
+        editor.setDecorations(readingGuideDecorationType, [range]);
+    };
+    
+    vscode.window.onDidChangeTextEditorSelection(highlightLine);
+    highlightLine();
+    vscode.window.showInformationMessage('Reading Guide Enabled');
 });
+
+let disableReadingGuide = vscode.commands.registerCommand('dyslexia-mitigation.disableReadingGuide', function () {
+    const editor = vscode.window.activeTextEditor;
+    if (!editor) {
+        vscode.window.showInformationMessage('No active text editor');
+        return;
+    }
+    editor.setDecorations(readingGuideDecorationType, []);
+    vscode.window.showInformationMessage('Reading Guide Disabled');
+});
+
 
 let textMaskingDecorationType = vscode.window.createTextEditorDecorationType({
     backgroundColor: 'rgba(0, 0, 0, 0.7)'
