@@ -40,10 +40,6 @@
         "title": "Text to Speech"
       },
       {
-        "command": "dyslexia-mitigation.syllableBreakdown",
-        "title": "Break Text into Syllables"
-      },
-      {
         "command": "dyslexia-mitigation.enableReadingGuide",
         "title": "Enable Reading Guide"
       },
