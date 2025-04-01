@@ -20,7 +20,6 @@
     "onCommand:dyslexia-mitigation.disableReadingGuide",
     "onCommand:dyslexia-mitigation.toggleTextMasking",
     "onCommand:dyslexia-mitigation.toggleCursorTracking"
-
   ],
   "main": "./extension.js",
   "contributes": {
