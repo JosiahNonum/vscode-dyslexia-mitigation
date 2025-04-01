@@ -75,13 +75,6 @@ function activate(context) {
           console.log(`Received message: ${JSON.stringify(message)}`);
 
           switch (message.command) {
-            case "startPomodoro":
-              vscode.window.showInformationMessage(
-                `Starting Pomodoro timer for ${message.minutes} minutes`
-              );
-              // Implement pomodoro timer functionality here
-              break;
-
             case "dictionaryLookup":
               dictionaryLookup();
               break;
@@ -102,13 +95,7 @@ function activate(context) {
               }
               break;
 
-            case "syllableSplit":
-              vscode.commands.executeCommand("dyslexia-mitigation.syllableBreakdown");
-              break;
-
-            case "geminiShorten":
-              vscode.window.showInformationMessage("Gemini shortening feature not yet implemented");
-              break;
+            // Remove syllableSplit case
 
             // Handler for distraction reducer (text masking)
             case "toggleDistractionReducer":
@@ -306,7 +293,6 @@ function activate(context) {
     <h3>Features</h3>
     <button id="dictionaryLookupButton">Dictionary Lookup</button>
     <button id="readAloudToggle">Read Text Aloud</button>
-    <button id="syllableButton">Split into Syllables</button>
     
     <h3>Visual Aids</h3>
     <div class="option-row">
@@ -348,10 +334,6 @@ function activate(context) {
       
       document.getElementById("readAloudToggle").addEventListener("click", () => {
         vscode.postMessage({ command: "readAloud" });
-      });
-      
-      document.getElementById("syllableButton").addEventListener("click", () => {
-        vscode.postMessage({ command: "syllableSplit" });
       });
       
       document.getElementById("lineFocus").addEventListener("change", (e) => {
@@ -638,61 +620,6 @@ function activate(context) {
     }
   );
 
-  function countSyllables(word) {
-    word = word.toLowerCase();
-    if (word.length <= 3) return 1;
-
-    // Basic syllable counting rules
-    word = word.replace(/(?:[^laeiouy]|ed|[^laeiouy]e)$/, "");
-    word = word.replace(/^y/, "");
-    const syllables = word.match(/[aeiouy]{1,2}/g);
-    return syllables ? syllables.length : 1;
-  }
-
-  // Syllable Breakdown Command
-  let syllableBreakdown = vscode.commands.registerCommand(
-    "dyslexia-mitigation.syllableBreakdown",
-    function () {
-      try {
-        const editor = vscode.window.activeTextEditor;
-        if (!editor) {
-          vscode.window.showErrorMessage("No active text editor.");
-          return;
-        }
-
-        const selection = editor.selection;
-        const text = editor.document.getText(selection);
-
-        if (!text) {
-          vscode.window.showErrorMessage("No text selected.");
-          return;
-        }
-
-        const words = text.split(/\s+/);
-        const syllabifiedText = words
-          .map((word) => {
-            if (word.match(/[^a-zA-Z]/)) return word;
-            const syllables = countSyllables(word);
-            if (syllables > 1) {
-              // Simple hyphenation between vowel groups
-              return word.replace(/([aeiouy]+)/gi, "$1-").replace(/-$/, "");
-            }
-            return word;
-          })
-          .join(" ");
-
-        editor.edit((editBuilder) => {
-          editBuilder.replace(selection, syllabifiedText);
-        });
-
-        vscode.window.showInformationMessage("Syllables added to selected text.");
-      } catch (error) {
-        console.error("Error processing syllables:", error);
-        vscode.window.showErrorMessage("Failed to process syllables.");
-      }
-    }
-  );
-
   // Reading Guide Commands
   let enableReadingGuide = vscode.commands.registerCommand(
     "dyslexia-mitigation.enableReadingGuide",
@@ -784,7 +711,6 @@ function activate(context) {
     setFontFamily,
     setLineSpacing,
     textToSpeech,
-    syllableBreakdown,
     enableReadingGuide,
     disableReadingGuide,
     toggleTextMasking,

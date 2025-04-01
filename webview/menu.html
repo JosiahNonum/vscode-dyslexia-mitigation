@@ -67,19 +67,9 @@
   </head>
 
   <body>
-    <h2>Pomodoro Timer</h2>
-    <div id="pomodoroTimer">00:00</div>
-    <button id="startPomodoro">Start Timer</button>
-    <div class="option-row">
-      <label class="option-label" for="pomodoroInput">Set Timer (minutes):</label>
-      <input type="number" id="pomodoroInput" min="1" max="60" value="25" />
-    </div>
-
     <h2>Dictionary & Reading Features</h2>
     <button id="dictionaryLookupButton">Look Up Selected Word</button>
     <button id="readAloudToggle">Read Selected Text Aloud</button>
-    <button id="syllableButton">Split Selected Text into Syllables</button>
-    <button id="geminiShortenButton">Shorten Selected Text</button>
 
     <h2>Font Settings</h2>
     <div class="option-row">
@@ -202,13 +192,6 @@
       const vscode = acquireVsCodeApi();
 
       // Add event listeners for all buttons and inputs
-      document.getElementById("startPomodoro").addEventListener("click", () => {
-        vscode.postMessage({
-          command: "startPomodoro",
-          minutes: document.getElementById("pomodoroInput").value,
-        });
-      });
-
       document.getElementById("dictionaryLookupButton").addEventListener("click", () => {
         vscode.postMessage({ command: "dictionaryLookup" });
       });
@@ -309,14 +292,6 @@
           command: "toggleLineFocus",
           enabled: e.target.value === "on",
         });
-      });
-
-      document.getElementById("syllableButton").addEventListener("click", () => {
-        vscode.postMessage({ command: "syllableSplit" });
-      });
-
-      document.getElementById("geminiShortenButton").addEventListener("click", () => {
-        vscode.postMessage({ command: "geminiShorten" });
       });
     </script>
   </body>
