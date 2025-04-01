@@ -15,7 +15,6 @@
     "onCommand:dyslexia-mitigation.setFontFamily",
     "onCommand:dyslexia-mitigation.setLineSpacing",
     "onCommand:dyslexia-mitigation.textToSpeech",
-    "onCommand:dyslexia-mitigation.syllableBreakdown",
     "onCommand:dyslexia-mitigation.enableReadingGuide",
     "onCommand:dyslexia-mitigation.disableReadingGuide",
     "onCommand:dyslexia-mitigation.toggleTextMasking",
@@ -84,7 +83,6 @@
     "eslint": "^9.21.0"
   },
   "dependencies": {
-    "chalk-animation": "^2.0.3",
-    "syllable": "^5.0.1"
+    "chalk-animation": "^2.0.3"
   }
 }
