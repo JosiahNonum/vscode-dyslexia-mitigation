@@ -380,7 +380,8 @@ function activate(context) {
       }
     }
   );
-  // text to speech Assitance
+
+  // text to speech Assistance
   let textToSpeech = vscode.commands.registerCommand(
     "dyslexia-mitigation.textToSpeech",
     async function () {
@@ -458,71 +459,30 @@ function activate(context) {
     }
   );
 
-  // TODO: still implementing the following features, need to add the logic for each feature, and test
-  // if the commands can work without plugin
-
+  // Reading Guide Commands
   let enableReadingGuide = vscode.commands.registerCommand(
     "dyslexia-mitigation.enableReadingGuide",
     function () {
-      const editor = vscode.window.activeTextEditor;
-      if (!editor) {
-        vscode.window.showInformationMessage("No active text editor");
-        return;
-      }
-
-      let highlightLine = () => {
-        if (!editor) return;
-        let range = editor.document.lineAt(editor.selection.active.line).range;
-        editor.setDecorations(readingGuideDecorationType, [range]);
-      };
-
-      vscode.window.onDidChangeTextEditorSelection(highlightLine);
-      highlightLine();
-      vscode.window.showInformationMessage("Reading Guide Enabled");
+      toggleLineFocus(true);
     }
   );
 
   let disableReadingGuide = vscode.commands.registerCommand(
     "dyslexia-mitigation.disableReadingGuide",
     function () {
-      const editor = vscode.window.activeTextEditor;
-      if (!editor) {
-        vscode.window.showInformationMessage("No active text editor");
-        return;
-      }
-      editor.setDecorations(readingGuideDecorationType, []);
-      vscode.window.showInformationMessage("Reading Guide Disabled");
+      toggleLineFocus(false);
     }
   );
 
+  // Text Masking Command
   let toggleTextMasking = vscode.commands.registerCommand(
     "dyslexia-mitigation.toggleTextMasking",
     function () {
-      const editor = vscode.window.activeTextEditor;
-      if (!editor) {
-        vscode.window.showInformationMessage("No active text editor");
-        return;
-      }
-
-      textMaskingEnabled = !textMaskingEnabled;
-
-      if (textMaskingEnabled) {
-        let ranges = [];
-        for (let i = 0; i < editor.document.lineCount; i++) {
-          if (i !== editor.selection.active.line) {
-            const line = editor.document.lineAt(i);
-            ranges.push(new vscode.Range(line.range.start, line.range.end));
-          }
-        }
-        editor.setDecorations(textMaskingDecorationType, ranges);
-        vscode.window.showInformationMessage("Text Masking Enabled");
-      } else {
-        editor.setDecorations(textMaskingDecorationType, []);
-        vscode.window.showInformationMessage("Text Masking Disabled");
-      }
+      toggleTextMaskingFeature(!textMaskingEnabled);
     }
   );
 
+  // Cursor Tracking Command
   let toggleCursorTracking = vscode.commands.registerCommand(
     "dyslexia-mitigation.toggleCursorTracking",
     function () {
@@ -539,6 +499,35 @@ function activate(context) {
     }
   );
 
+  // Color Overlay Command
+  let toggleColorOverlay = vscode.commands.registerCommand(
+    "dyslexia-mitigation.toggleColorOverlay",
+    async function () {
+      const isEnabled = overlayColorDecoration !== null;
+
+      if (!isEnabled) {
+        const colorPick = await vscode.window.showInputBox({
+          prompt: "Enter overlay color (e.g., #RRGGBB)",
+          placeHolder: "#FFFFFF",
+        });
+
+        if (colorPick) {
+          const opacity = await vscode.window.showInputBox({
+            prompt: "Enter opacity (0.0 - 1.0)",
+            placeHolder: "0.2",
+          });
+
+          if (opacity !== undefined) {
+            toggleColorOverlay(true, colorPick, parseFloat(opacity));
+          }
+        }
+      } else {
+        toggleColorOverlay(false);
+      }
+    }
+  );
+
+  // Register commands
   context.subscriptions.push(
     showMenu,
     setFontSize,
@@ -549,7 +538,8 @@ function activate(context) {
     enableReadingGuide,
     disableReadingGuide,
     toggleTextMasking,
-    toggleCursorTracking
+    toggleCursorTracking,
+    toggleColorOverlay
   );
 }
 

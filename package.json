@@ -20,6 +20,7 @@
     "onCommand:dyslexia-mitigation.disableReadingGuide",
     "onCommand:dyslexia-mitigation.toggleTextMasking",
     "onCommand:dyslexia-mitigation.toggleCursorTracking"
+
   ],
   "main": "./extension.js",
   "contributes": {
@@ -45,10 +46,6 @@
         "title": "Text to Speech"
       },
       {
-        "command": "dyslexia-mitigation.syllableBreakdown",
-        "title": "Break Text into Syllables"
-      },
-      {
         "command": "dyslexia-mitigation.enableReadingGuide",
         "title": "Enable Reading Guide"
       },
@@ -63,6 +60,14 @@
       {
         "command": "dyslexia-mitigation.toggleCursorTracking",
         "title": "Toggle Cursor Tracking"
+      },
+      {
+        "command": "dyslexia-mitigation.toggleColorOverlay",
+        "title": "Toggle Color Overlay"
+      },
+      {
+        "command": "dyslexia-mitigation.toggleThemeBackground",
+        "title": "Toggle Theme Background"
       }
     ]
   },
