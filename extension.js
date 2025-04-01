@@ -52,37 +52,53 @@ function activate(context) {
        
 
 
-let readingGuideDecorationType = vscode.window.createTextEditorDecorationType({
-    backgroundColor: 'rgba(255, 255, 0, 0.3)'
-});
-
-let enableReadingGuide = vscode.commands.registerCommand('dyslexia-mitigation.enableReadingGuide', function () {
-    const editor = vscode.window.activeTextEditor;
-    if (!editor) {
-        vscode.window.showInformationMessage('No active text editor');
-        return;
-    }
+    let readingGuideDecorationType = vscode.window.createTextEditorDecorationType({
+        backgroundColor: 'rgba(255, 255, 0, 0.3)'
+    });
     
-    let highlightLine = () => {
-        if (!editor) return;
-        let range = editor.document.lineAt(editor.selection.active.line).range;
-        editor.setDecorations(readingGuideDecorationType, [range]);
-    };
+    // Add a variable to store the listener
+    let readingGuideListener = null;
     
-    vscode.window.onDidChangeTextEditorSelection(highlightLine);
-    highlightLine();
-    vscode.window.showInformationMessage('Reading Guide Enabled');
-});
-
-let disableReadingGuide = vscode.commands.registerCommand('dyslexia-mitigation.disableReadingGuide', function () {
-    const editor = vscode.window.activeTextEditor;
-    if (!editor) {
-        vscode.window.showInformationMessage('No active text editor');
-        return;
-    }
-    editor.setDecorations(readingGuideDecorationType, []);
-    vscode.window.showInformationMessage('Reading Guide Disabled');
-});
+    let enableReadingGuide = vscode.commands.registerCommand('dyslexia-mitigation.enableReadingGuide', function () {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            vscode.window.showInformationMessage('No active text editor');
+            return;
+        }
+        
+        let highlightLine = () => {
+            if (!editor) return;
+            let range = editor.document.lineAt(editor.selection.active.line).range;
+            editor.setDecorations(readingGuideDecorationType, [range]);
+        };
+        
+        // Clear existing listener before creating a new one
+        if (readingGuideListener) {
+            readingGuideListener.dispose();
+        }
+        
+        // Store the new listener
+        readingGuideListener = vscode.window.onDidChangeTextEditorSelection(highlightLine);
+        highlightLine();
+        vscode.window.showInformationMessage('Reading Guide Enabled');
+    });
+    
+    let disableReadingGuide = vscode.commands.registerCommand('dyslexia-mitigation.disableReadingGuide', function () {
+        const editor = vscode.window.activeTextEditor;
+        if (!editor) {
+            vscode.window.showInformationMessage('No active text editor');
+            return;
+        }
+        
+        // Clear decorations AND dispose the listener
+        editor.setDecorations(readingGuideDecorationType, []);
+        if (readingGuideListener) {
+            readingGuideListener.dispose();
+            readingGuideListener = null;
+        }
+        
+        vscode.window.showInformationMessage('Reading Guide Disabled');
+    });
 
 
 let textMaskingDecorationType = vscode.window.createTextEditorDecorationType({
