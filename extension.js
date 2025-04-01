@@ -86,8 +86,11 @@ let disableReadingGuide = vscode.commands.registerCommand('dyslexia-mitigation.d
 
 
 let textMaskingDecorationType = vscode.window.createTextEditorDecorationType({
-    backgroundColor: 'rgba(0, 0, 0, 0.7)'
+    backgroundColor: 'rgba(6, 6, 7, 0.5)',  
+    color: 'black',  
+    fontWeight: 'normal',  
 });
+
 let textMaskingEnabled = false;
 
 let toggleTextMasking = vscode.commands.registerCommand('dyslexia-mitigation.toggleTextMasking', function () {
@@ -102,11 +105,12 @@ let toggleTextMasking = vscode.commands.registerCommand('dyslexia-mitigation.tog
     if (textMaskingEnabled) {
         let ranges = [];
         for (let i = 0; i < editor.document.lineCount; i++) {
-            if (i !== editor.selection.active.line) {
+            if (i !== editor.selection.active.line) {  
                 const line = editor.document.lineAt(i);
-                ranges.push(new vscode.Range(line.range.start, line.range.end));
+                ranges.push(new vscode.Range(line.range.start, line.range.end));  
             }
         }
+
         editor.setDecorations(textMaskingDecorationType, ranges);
         vscode.window.showInformationMessage('Text Masking Enabled');
     } else {
@@ -115,15 +119,113 @@ let toggleTextMasking = vscode.commands.registerCommand('dyslexia-mitigation.tog
     }
 });
 
+
+let cursorTrackingDecorationType = vscode.window.createTextEditorDecorationType({
+    border: '2px solid blue',  
+    backgroundColor: 'rgba(0, 0, 255, 0.2)',
+    borderRadius: '2px'
+});
+
+let fadeOutTextDecorationType = vscode.window.createTextEditorDecorationType({
+    color: 'white' 
+});
+
 let cursorTrackingEnabled = false;
+let cursorTrackingListener = null;
 
 let toggleCursorTracking = vscode.commands.registerCommand('dyslexia-mitigation.toggleCursorTracking', function () {
     cursorTrackingEnabled = !cursorTrackingEnabled;
-    vscode.workspace.getConfiguration('editor').update('cursorStyle', cursorTrackingEnabled ? 'block' : 'line', true);
-    vscode.workspace.getConfiguration('editor').update('cursorBlinking', cursorTrackingEnabled ? 'phase' : 'solid', true);
-    vscode.window.showInformationMessage(cursorTrackingEnabled ? 'Cursor Tracking Enabled' : 'Cursor Tracking Disabled');
-});
+    const editor = vscode.window.activeTextEditor;
 
+    if (!editor) {
+        vscode.window.showInformationMessage('No active text editor');
+        return;
+    }
+
+    if (cursorTrackingEnabled) {
+        let highlightWord = () => {
+            if (!editor) return;
+
+            const position = editor.selection.active;
+            const lineText = editor.document.lineAt(position.line).text;
+
+           
+            const wordRegex = /[a-zA-Z0-9_]+/g;  
+            const symbolRegex = /[^\s\w]/g;       
+            let wordRange = null;
+
+            
+            let match;
+            while ((match = wordRegex.exec(lineText)) !== null) {
+                if (position.character >= match.index && position.character <= match.index + match[0].length) {
+                    wordRange = new vscode.Range(
+                        new vscode.Position(position.line, match.index),
+                        new vscode.Position(position.line, match.index + match[0].length)
+                    );
+                    break;
+                }
+            }
+
+           
+            if (!wordRange) {
+                while ((match = symbolRegex.exec(lineText)) !== null) {
+                    if (position.character === match.index) {
+                        wordRange = new vscode.Range(
+                            new vscode.Position(position.line, match.index),
+                            new vscode.Position(position.line, match.index + match[0].length)
+                        );
+                        break;
+                    }
+                }
+            }
+
+            
+            if (!wordRange) {
+                wordRange = new vscode.Range(position, position.translate(0, 1));
+            }
+
+            editor.setDecorations(cursorTrackingDecorationType, [wordRange]);
+
+            
+            let fadeOutRanges = [];
+
+            for (let i = 0; i < editor.document.lineCount; i++) {
+                const line = editor.document.lineAt(i);
+                for (let j = 0; j < line.text.length; j++) {
+                    let charPos = new vscode.Position(i, j);
+                    let charRange = new vscode.Range(charPos, charPos.translate(0, 1));
+
+                    if (!wordRange.contains(charPos)) {
+                        fadeOutRanges.push(charRange);
+                    }
+                }
+            }
+
+            editor.setDecorations(fadeOutTextDecorationType, fadeOutRanges);
+        };
+
+        
+        if (cursorTrackingListener) {
+            cursorTrackingListener.dispose();
+        }
+
+        cursorTrackingListener = vscode.window.onDidChangeTextEditorSelection(highlightWord);
+        highlightWord();
+
+        vscode.window.showInformationMessage('Cursor Tracking Enabled');
+    } else {
+        
+        editor.setDecorations(cursorTrackingDecorationType, []);
+        editor.setDecorations(fadeOutTextDecorationType, []);
+
+        if (cursorTrackingListener) {
+            cursorTrackingListener.dispose();
+            cursorTrackingListener = null;
+        }
+
+        vscode.window.showInformationMessage('Cursor Tracking Disabled');
+    }
+});
 
 // Register command to toggle color overlay
 let colorOverlayDecoration = vscode.window.createTextEditorDecorationType({
