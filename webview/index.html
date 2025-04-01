@@ -1,191 +1,242 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Dyslexia VS</title>
     <style>
-        :root {
-            --background-color: #f9f9f9;
-            --border-color: #ddd;
-            --feature-card-hover-shadow: 0 5px 15px rgba(0,0,0,0.1);
-            --button-background: #007BFF;
-            --button-hover-background: #0056b3;
-            --feature-header-color: #007BFF;
-        }
+      :root {
+        --background-color: #f9f9f9;
+        --border-color: #ddd;
+        --feature-card-hover-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        --button-background: #007bff;
+        --button-hover-background: #0056b3;
+        --feature-header-color: #007bff;
+      }
 
-        body {
-            font-family: Arial, sans-serif;
-            line-height: 1.6;
-        }
+      body {
+        font-family: Arial, sans-serif;
+        line-height: 1.6;
+      }
 
+      .container {
+        max-width: 800px;
+        margin: auto;
+        padding: 20px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+      }
+
+      .header-logo {
+        height: 300px;
+        width: auto;
+        margin: 30px;
+      }
+
+      .features-list {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        grid-gap: 20px;
+        margin-bottom: 20px;
+      }
+
+      .feature-card {
+        background: var(--background-color);
+        border: 1px solid var(--border-color);
+        border-radius: 10px;
+        padding: 20px;
+        text-align: center;
+        transition: transform 0.3s ease;
+      }
+
+      .feature-card:hover {
+        transform: translateY(-5px);
+        box-shadow: var(--feature-card-hover-shadow);
+      }
+
+      .feature-icon {
+        font-size: 2em;
+        margin-bottom: 8px;
+      }
+
+      .text-large {
+        font-size: 20px;
+        margin-bottom: 5px;
+      }
+
+      .text-color-primary {
+        color: var(--feature-header-color);
+      }
+
+      .feature-text {
+        font-size: 14px;
+      }
+
+      button {
+        background-color: var(--button-background);
+        color: white;
+        padding: 10px 20px;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-size: 16px;
+        margin-top: 20px;
+      }
+
+      button:hover {
+        background-color: var(--button-hover-background);
+      }
+
+      @media (max-width: 768px) {
         .container {
-            max-width: 800px;
-            margin: auto;
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-        }
-
-        .header-logo {
-            height: 300px;
-            width: auto;
-            margin: 30px;
+          padding: 10px;
         }
 
         .features-list {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
-            grid-gap: 20px;
-            margin-bottom: 20px;
-        }
-
-        .feature-card {
-            background: var(--background-color);
-            border: 1px solid var(--border-color);
-            border-radius: 10px;
-            padding: 20px;
-            text-align: center;
-            transition: transform 0.3s ease;
-        }
-
-        .feature-card:hover {
-            transform: translateY(-5px);
-            box-shadow: var(--feature-card-hover-shadow);
-        }
-
-        .feature-icon {
-            font-size: 2em;
-            margin-bottom: 8px;
+          grid-gap: 15px;
         }
 
         .text-large {
-            font-size: 20px;
-            margin-bottom: 5px;
+          font-size: 18px;
         }
 
-        .text-color-primary {
-            color: var(--feature-header-color);
-        }
-
-        .feature-text {
-            font-size: 14px;
-        }
-
+        .feature-text,
         button {
-            background-color: var(--button-background);
-            color: white;
-            padding: 10px 20px;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-            font-size: 16px;
-            margin-top: 20px;
+          font-size: 13px;
         }
 
-        button:hover {
-            background-color: var(--button-hover-background);
+        .feature-icon {
+          font-size: 1.8em;
         }
-
-        @media (max-width: 768px) {
-            .container {
-                padding: 10px;
-            }
-
-            .features-list {
-                grid-gap: 15px;
-            }
-
-            .text-large {
-                font-size: 18px;
-            }
-
-            .feature-text, button {
-                font-size: 13px;
-            }
-
-            .feature-icon {
-                font-size: 1.8em;
-            }
-        }
+      }
     </style>
-</head>
-<body>
+  </head>
+  <body>
     <div class="container">
-        <img src="images/DyslexiaVS.png" alt="Dyslexia VS Logo" class="header-logo">
-        <h1><strong>Welcome to Dyslexia VS</strong></h1>
-        <p>Easily activate the Dyslexia VS extension with a simple button from your keyboard or click within VS, enabling all reading accessibility features instantly.</p>
-        <div class="overview">
-            <h2 class="text-large text-color-primary"><strong>Overview</strong></h2>
-            <p>Dyslexia VS is designed to make reading code and web content more accessible for individuals with dyslexia. The extension offers a range of customizable features to cater to various needs, such as dyslexia-friendly fonts, custom background colors, and adjustable text spacing to enhance letter and word distinction. It also includes a text-to-speech function, allowing users to listen to the content for better comprehension. Additionally, the extension features dynamic word highlighting, which helps readers track text as they read. These tools work together to create a personalized reading experience that promotes clarity, ease of reading, and overall accessibility, ensuring a more inclusive and user-friendly digital environment.</p>
-        </div>
-        <!-- Features Section -->
-        <h2 class="text-large text-color-primary"><strong>Features</strong></h2>
-        <div class="features-list">
-            <!-- Feature 1 -->
+      <img src="images/DyslexiaVS.png" alt="Dyslexia VS Logo" class="header-logo" />
+      <h1><strong>Welcome to Dyslexia VS</strong></h1>
+      <p>
+        Easily activate the Dyslexia VS extension with a simple button from your keyboard or click
+        within VS, enabling all reading accessibility features instantly.
+      </p>
+      <div class="overview">
+        <h2 class="text-large text-color-primary"><strong>Overview</strong></h2>
+        <p>
+          Dyslexia VS is designed to make reading code and web content more accessible for
+          individuals with dyslexia. The extension offers a range of customizable features to cater
+          to various needs, such as dyslexia-friendly fonts, custom background colors, and
+          adjustable text spacing to enhance letter and word distinction. It also includes a
+          text-to-speech function, allowing users to listen to the content for better comprehension.
+          Additionally, the extension features dynamic word highlighting, which helps readers track
+          text as they read. These tools work together to create a personalized reading experience
+          that promotes clarity, ease of reading, and overall accessibility, ensuring a more
+          inclusive and user-friendly digital environment.
+        </p>
+      </div>
+      <!-- Features Section -->
+      <h2 class="text-large text-color-primary"><strong>Features</strong></h2>
+      <div class="features-list">
+        <!-- Feature 1
             <div class="feature-card">
                 <div class="feature-icon">⏲️</div>
                 <h3 class="feature-header">Set Timer</h3>
                 <p class="feature-text">Adds a timer to track reading or study sessions, helping users manage their focus and time.</p>
-            </div>
-            <!-- Feature 2 -->
-            <div class="feature-card">
-                <div class="feature-icon">🔍</div>
-                <h3 class="feature-header">Look Up Selected Word</h3>
-                <p class="feature-text">Allows users to instantly look up the definition or meaning of selected words, improving vocabulary and understanding.</p>
-            </div>
-            <!-- Feature 3 -->
-            <div class="feature-card">
-                <div class="feature-icon">🔊</div>
-                <h3 class="feature-header">Read Selected Text Aloud</h3>
-                <p class="feature-text">Enables the user to have selected text read aloud, enhancing comprehension for auditory learners.</p>
-            </div>
-            <!-- Feature 4 -->
-            <div class="feature-card">
-                <div class="feature-icon">🔠</div>
-                <h3 class="feature-header">Font Settings</h3>
-                <p class="feature-text">Choose from a variety of dyslexia-friendly fonts to make text more readable and comfortable for dyslexic users.</p>
-            </div>
-            <!-- Feature 5 -->
-            <div class="feature-card">
-                <div class="feature-icon">🖱️</div>
-                <h3 class="feature-header">Reading Aids</h3>
-                <p class="feature-text">Provides a range of aids like distraction reduction, cursor tracking, color highlighting, and line focus to support efficient reading.</p>
-            </div>
-            <!-- Feature 6 -->
-            <div class="feature-card">
-                <div class="feature-icon">📝</div>
-                <h3 class="feature-header">Text Appearance</h3>
-                <p class="feature-text">Customize font size, letter spacing, line height, and maximum line width for optimal readability and comfort.</p>
-            </div>
-            <!-- Feature 7 -->
-            <div class="feature-card">
-                <div class="feature-icon">🎨</div>
-                <h3 class="feature-header">Color Overlay</h3>
-                <p class="feature-text">Toggle color overlays with adjustable opacity and color types to reduce visual stress and improve contrast for easier reading.</p>
-            </div>
+            </div> -->
+        <!-- Feature 2 -->
+        <div class="feature-card">
+          <div class="feature-icon">🔍</div>
+          <h3 class="feature-header">Look Up Selected Word</h3>
+          <p class="feature-text">
+            Allows users to instantly look up the definition or meaning of selected words, improving
+            vocabulary and understanding.
+          </p>
         </div>
-        <!-- User and System Requirements -->
-        <div class="feature">
-            <h3 class="feature-header">Requirements</h3>
-            <ul>
-                <li><strong>Visual Studio Code:</strong> Be familiar with using Visual Studio Code and accessing the extension store.</li>
-                <li><strong>Internet Connection:</strong> Ensure you have an active internet connection to download and activate the extension.</li>
-            </ul>
+        <!-- Feature 3 -->
+        <div class="feature-card">
+          <div class="feature-icon">🔊</div>
+          <h3 class="feature-header">Read Selected Text Aloud</h3>
+          <p class="feature-text">
+            Enables the user to have selected text read aloud, enhancing comprehension for auditory
+            learners.
+          </p>
         </div>
-        <!-- Privacy Policy and Terms of Use Links -->
-        <div class="feature">
-            <h3 class="feature-header">Privacy and Terms</h3>
-            <p>Your privacy is important to us. Read our <a href="privacy_policy_link_here">Privacy Policy</a> and <a href="terms_of_use_link_here">Terms of Use</a> to understand how we collect, use, and protect your data.</p>
+        <!-- Feature 4 -->
+        <div class="feature-card">
+          <div class="feature-icon">🔠</div>
+          <h3 class="feature-header">Font Settings</h3>
+          <p class="feature-text">
+            Choose from a variety of dyslexia-friendly fonts to make text more readable and
+            comfortable for dyslexic users.
+          </p>
         </div>
-        <!-- Accessibility and Compliance Information -->
-        <div class="feature">
-            <h3 class="feature-header">Accessibility and Compliance</h3>
-            <p>Dyslexia VS is committed to ensuring digital accessibility for individuals with dyslexia and other reading difficulties. We continuously work towards improving the user experience for everyone, adhering to relevant accessibility standards. Our extension aims to comply with WCAG 2.1 level AA standards, making the web more accessible by offering features that address dyslexia and reading challenges.</p>
+        <!-- Feature 5 -->
+        <div class="feature-card">
+          <div class="feature-icon">🖱️</div>
+          <h3 class="feature-header">Reading Aids</h3>
+          <p class="feature-text">
+            Provides a range of aids like distraction reduction, cursor tracking, color
+            highlighting, and line focus to support efficient reading.
+          </p>
         </div>
-        <!-- Call to Action (CTA) -->
-        <button onclick="window.location.href='https://marketplace.visualstudio.com/vscode';">Download Now</button>
+        <!-- Feature 6 -->
+        <div class="feature-card">
+          <div class="feature-icon">📝</div>
+          <h3 class="feature-header">Text Appearance</h3>
+          <p class="feature-text">
+            Customize font size, letter spacing, line height, and maximum line width for optimal
+            readability and comfort.
+          </p>
+        </div>
+        <!-- Feature 7 -->
+        <div class="feature-card">
+          <div class="feature-icon">🎨</div>
+          <h3 class="feature-header">Color Overlay</h3>
+          <p class="feature-text">
+            Toggle color overlays with adjustable opacity and color types to reduce visual stress
+            and improve contrast for easier reading.
+          </p>
+        </div>
+      </div>
+      <!-- User and System Requirements -->
+      <div class="feature">
+        <h3 class="feature-header">Requirements</h3>
+        <ul>
+          <li>
+            <strong>Visual Studio Code:</strong> Be familiar with using Visual Studio Code and
+            accessing the extension store.
+          </li>
+          <li>
+            <strong>Internet Connection:</strong> Ensure you have an active internet connection to
+            download and activate the extension.
+          </li>
+        </ul>
+      </div>
+      <!-- Privacy Policy and Terms of Use Links -->
+      <div class="feature">
+        <h3 class="feature-header">Privacy and Terms</h3>
+        <p>
+          Your privacy is important to us. Read our
+          <a href="privacy_policy_link_here">Privacy Policy</a> and
+          <a href="terms_of_use_link_here">Terms of Use</a> to understand how we collect, use, and
+          protect your data.
+        </p>
+      </div>
+      <!-- Accessibility and Compliance Information -->
+      <div class="feature">
+        <h3 class="feature-header">Accessibility and Compliance</h3>
+        <p>
+          Dyslexia VS is committed to ensuring digital accessibility for individuals with dyslexia
+          and other reading difficulties. We continuously work towards improving the user experience
+          for everyone, adhering to relevant accessibility standards. Our extension aims to comply
+          with WCAG 2.1 level AA standards, making the web more accessible by offering features that
+          address dyslexia and reading challenges.
+        </p>
+      </div>
+      <!-- Call to Action (CTA) -->
+      <button onclick="window.location.href='https://marketplace.visualstudio.com/vscode';">
+        Download Now
+      </button>
     </div>
-</body>
+  </body>
 </html>

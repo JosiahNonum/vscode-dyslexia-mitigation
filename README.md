@@ -1,6 +1,8 @@
 # dyslexia-mitigation README
 
 Josiah Larimer ✨
+Sebastian Melendez
+Emmanual rodriguez
 
 ## Running the extension
 
