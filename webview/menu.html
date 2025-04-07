@@ -115,6 +115,15 @@
       </select>
     </div>
 
+    <div class="option-row">
+      <label class="option-label" for="lineFocusColor">Line Focus Color:</label>
+      <select id="lineFocusColor">
+        <option value="yellow">Yellow</option>
+        <option value="green">Green</option>
+        <option value="pink">Pink</option>
+      </select>
+    </div>
+
     <h2>Text Appearance</h2>
     <div class="option-row">
       <label class="option-label" for="fontSize">Font Size (px):</label>
@@ -231,6 +240,22 @@
         });
       });
 
+      // Line focus
+      document.getElementById("lineFocus").addEventListener("change", (e) => {
+        vscode.postMessage({
+          command: "toggleLineFocus",
+          enabled: e.target.value === "on",
+        });
+      });
+
+      // Line focus color
+      document.getElementById("lineFocusColor").addEventListener("change", (e) => {
+        vscode.postMessage({
+          command: "changeLineFocusColor",
+          color: e.target.value,
+        });
+      });
+
       // Text adjustments
       document.getElementById("fontSize").addEventListener("change", (e) => {
         vscode.postMessage({
@@ -283,14 +308,6 @@
           command: "changeOverlayOpacity",
           color: document.getElementById("overlayColor").value,
           opacity: parseFloat(e.target.value),
-        });
-      });
-
-      // Line focus
-      document.getElementById("lineFocus").addEventListener("change", (e) => {
-        vscode.postMessage({
-          command: "toggleLineFocus",
-          enabled: e.target.value === "on",
         });
       });
     </script>

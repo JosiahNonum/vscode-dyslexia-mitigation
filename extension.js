@@ -12,13 +12,74 @@ function activate(context) {
   let overlayColorDecoration = null;
   let readingGuideDisposable = null;
   let textMaskingEnabled = false;
-  let textMaskingDecorationType = vscode.window.createTextEditorDecorationType({
-    backgroundColor: "rgba(0, 0, 0, 0.7)",
-  });
-  let readingGuideDecorationType = vscode.window.createTextEditorDecorationType({
-    backgroundColor: "rgba(255, 255, 0, 0.3)",
-  });
   let cursorTrackingEnabled = false;
+
+  let currentTrackingColor = 'blue';
+  let currentLineFocusColor = 'yellow';
+
+  function getRgbaColor(color) {
+    switch(color) {
+      case 'blue':
+        return 'rgba(0, 0, 255, 0.3)';
+      case 'green':
+        return 'rgba(0, 255, 0, 0.3)';
+      case 'red':
+        return 'rgba(255, 0, 0, 0.3)';
+      case 'yellow':
+        return 'rgba(255, 255, 0, 0.3)';
+      case 'purple':
+        return 'rgba(128, 0, 128, 0.3)';
+      default:
+        return 'rgba(0, 0, 255, 0.3)';
+    }
+  }
+
+  function createCursorTrackingDecorationType(color) {
+    currentTrackingColor = color;
+    const rgbaColor = getRgbaColor(color);
+    return vscode.window.createTextEditorDecorationType({
+      backgroundColor: rgbaColor,
+      border: `1px solid ${color}`
+    });
+  }
+
+  function createTextMaskingDecorationType() {
+    return vscode.window.createTextEditorDecorationType({
+      color: 'rgba(255, 255, 255, 1)', // White text
+      opacity: '1'
+    });
+  }
+
+  function createReadingGuideDecorationType(color) {
+    currentLineFocusColor = color;
+    switch(color) {
+      case 'yellow':
+        return vscode.window.createTextEditorDecorationType({
+          backgroundColor: "rgba(255, 255, 0, 0.3)",
+        });
+      case 'blue':
+        return vscode.window.createTextEditorDecorationType({
+          backgroundColor: "rgba(0, 0, 255, 0.3)",
+        });
+      case 'green':
+        return vscode.window.createTextEditorDecorationType({
+          backgroundColor: "rgba(0, 255, 0, 0.3)",
+        });
+      case 'pink':
+        return vscode.window.createTextEditorDecorationType({
+          backgroundColor: "rgba(255, 105, 180, 0.3)",
+        });
+      default:
+        return vscode.window.createTextEditorDecorationType({
+          backgroundColor: "rgba(255, 255, 0, 0.3)",
+        });
+    }
+  }
+
+  // Create decoration types with updated distraction reducer settings
+  let textMaskingDecorationType = createTextMaskingDecorationType();
+  let readingGuideDecorationType = createReadingGuideDecorationType(currentLineFocusColor);
+  let cursorTrackingDecorationType = createCursorTrackingDecorationType(currentTrackingColor);
 
   // Register command to show menu panel
   let showMenu = vscode.commands.registerCommand("dyslexia-mitigation.showMenu", () => {
@@ -27,7 +88,6 @@ function activate(context) {
       return;
     }
 
-    // Create and show panel
     currentPanel = vscode.window.createWebviewPanel(
       "dyslexiaMenu",
       "Dyslexia Mitigation Tools",
@@ -39,22 +99,17 @@ function activate(context) {
       }
     );
 
-    // Get path to menu.html
     const menuPath = path.join(context.extensionPath, "webview", "menu.html");
     console.log(`Loading menu from: ${menuPath}`);
 
-    // Read HTML file content
     let menuContent;
     try {
-      // Check if the file exists first
       if (!fs.existsSync(menuPath)) {
         vscode.window.showErrorMessage(`Menu file not found at path: ${menuPath}`);
-        // Create directory if it doesn't exist
         const webviewDir = path.join(context.extensionPath, "webview");
         if (!fs.existsSync(webviewDir)) {
           fs.mkdirSync(webviewDir);
         }
-        // Create a basic menu.html file
         createDefaultMenuFile(menuPath);
         vscode.window.showInformationMessage(`Created default menu file at: ${menuPath}`);
       }
@@ -65,10 +120,8 @@ function activate(context) {
       return;
     }
 
-    // Set webview content
     currentPanel.webview.html = menuContent;
 
-    // Handle messages from the webview
     currentPanel.webview.onDidReceiveMessage(
       (message) => {
         try {
@@ -95,34 +148,57 @@ function activate(context) {
               }
               break;
 
-            // Remove syllableSplit case
-
-            // Handler for distraction reducer (text masking)
             case "toggleDistractionReducer":
               toggleTextMaskingFeature(message.enabled);
               break;
 
-            // Handler for tracking aid (cursor tracking)
             case "toggleTrackingAid":
               cursorTrackingEnabled = message.enabled;
-              vscode.workspace
-                .getConfiguration("editor")
-                .update("cursorStyle", cursorTrackingEnabled ? "block" : "line", true);
-              vscode.workspace
-                .getConfiguration("editor")
-                .update("cursorBlinking", cursorTrackingEnabled ? "phase" : "solid", true);
-              vscode.window.showInformationMessage(
-                cursorTrackingEnabled ? "Cursor Tracking Enabled" : "Cursor Tracking Disabled"
-              );
+              if (cursorTrackingEnabled) {
+                const editor = vscode.window.activeTextEditor;
+                if (editor) {
+                  updateCursorTrackingDecorations(editor);
+                }
+                context.subscriptions.push(
+                  vscode.window.onDidChangeTextEditorSelection(event => {
+                    updateCursorTrackingDecorations(event.textEditor);
+                  })
+                );
+                vscode.window.showInformationMessage("Cursor Tracking Enabled - Selected words highlighted");
+              } else {
+                vscode.window.visibleTextEditors.forEach(editor => {
+                  editor.setDecorations(cursorTrackingDecorationType, []);
+                  editor.setDecorations(textMaskingDecorationType, []);
+                });
+                vscode.window.showInformationMessage("Cursor Tracking Disabled");
+              }
               break;
 
-            // Add handlers for tracking aid color
             case "changeTrackingAidColor":
+              cursorTrackingDecorationType.dispose();
+              cursorTrackingDecorationType = createCursorTrackingDecorationType(message.color);
+              if (cursorTrackingEnabled) {
+                const editor = vscode.window.activeTextEditor;
+                if (editor) {
+                  updateCursorTrackingDecorations(editor);
+                }
+              }
               vscode.window.showInformationMessage(`Tracking aid color set to ${message.color}`);
-              // This would require additional implementation to actually change the cursor color
               break;
 
-            // Add handlers for text appearance settings
+            case "changeLineFocusColor":
+              readingGuideDecorationType.dispose();
+              readingGuideDecorationType = createReadingGuideDecorationType(message.color);
+              if (readingGuideDisposable) {
+                const editor = vscode.window.activeTextEditor;
+                if (editor) {
+                  let range = editor.document.lineAt(editor.selection.active.line).range;
+                  editor.setDecorations(readingGuideDecorationType, [range]);
+                }
+              }
+              vscode.window.showInformationMessage(`Line focus color set to ${message.color}`);
+              break;
+
             case "changeFontSize":
               if (message.value === "DEFAULT") {
                 vscode.workspace.getConfiguration("editor").update("fontSize", undefined, true);
@@ -177,7 +253,6 @@ function activate(context) {
               }
               break;
 
-            // Add handlers for color overlay
             case "toggleOverlay":
               toggleColorOverlayFeature(message.enabled, message.color, message.opacity);
               break;
@@ -190,7 +265,6 @@ function activate(context) {
               updateColorOverlay(message.color, message.opacity);
               break;
 
-            // Add handlers for line focus
             case "toggleLineFocus":
               toggleLineFocus(message.enabled);
               break;
@@ -208,7 +282,6 @@ function activate(context) {
       context.subscriptions
     );
 
-    // Reset when the panel is closed
     currentPanel.onDidDispose(
       () => {
         currentPanel = undefined;
@@ -218,7 +291,6 @@ function activate(context) {
     );
   });
 
-  // Create a default menu file if one doesn't exist
   function createDefaultMenuFile(filePath) {
     const content = `<!DOCTYPE html>
 <html lang="en">
@@ -302,12 +374,33 @@ function activate(context) {
         <option value="on">On</option>
       </select>
     </div>
+
+    <div class="option-row">
+      <label class="option-label" for="lineFocusColor">Line Focus Color:</label>
+      <select id="lineFocusColor">
+        <option value="yellow">Yellow</option>
+        <option value="blue">Blue</option>
+        <option value="green">Green</option>
+        <option value="pink">Pink</option>
+      </select>
+    </div>
     
     <div class="option-row">
       <label class="option-label" for="distractionReducer">Distraction Reducer:</label>
       <select id="distractionReducer">
         <option value="off">Off</option>
         <option value="on">On</option>
+      </select>
+    </div>
+
+    <div class="option-row">
+      <label class="option-label" for="trackingColor">Cursor Tracking Color:</label>
+      <select id="trackingColor">
+        <option value="blue">Blue</option>
+        <option value="green">Green</option>
+        <option value="red">Red</option>
+        <option value="yellow">Yellow</option>
+        <option value="purple">Purple</option>
       </select>
     </div>
     
@@ -342,11 +435,25 @@ function activate(context) {
           enabled: e.target.value === "on"
         });
       });
+
+      document.getElementById("lineFocusColor").addEventListener("change", (e) => {
+        vscode.postMessage({
+          command: "changeLineFocusColor",
+          color: e.target.value
+        });
+      });
       
       document.getElementById("distractionReducer").addEventListener("change", (e) => {
         vscode.postMessage({
           command: "toggleDistractionReducer",
           enabled: e.target.value === "on"
+        });
+      });
+
+      document.getElementById("trackingColor").addEventListener("change", (e) => {
+        vscode.postMessage({
+          command: "changeTrackingAidColor",
+          color: e.target.value
         });
       });
     </script>
@@ -356,19 +463,16 @@ function activate(context) {
     fs.writeFileSync(filePath, content, "utf8");
   }
 
-  // Function to toggle text masking without requiring active editor
   function toggleTextMaskingFeature(enabled) {
     textMaskingEnabled = enabled;
     console.log(`Text masking toggled: ${enabled}`);
 
     try {
-      // Apply to current editor if exists
       const editor = vscode.window.activeTextEditor;
       if (editor) {
         applyTextMasking(editor);
       }
 
-      // Set up listeners for future editors
       if (textMaskingEnabled) {
         const changeListener = vscode.window.onDidChangeActiveTextEditor(applyTextMasking);
         const selectionListener = vscode.window.onDidChangeTextEditorSelection((event) => {
@@ -377,13 +481,12 @@ function activate(context) {
 
         context.subscriptions.push(changeListener, selectionListener);
 
-        vscode.window.showInformationMessage("Text Masking Enabled");
+        vscode.window.showInformationMessage("Distraction Reducer Enabled");
       } else {
-        // Clear decorations from all visible editors
         vscode.window.visibleTextEditors.forEach((editor) => {
           editor.setDecorations(textMaskingDecorationType, []);
         });
-        vscode.window.showInformationMessage("Text Masking Disabled");
+        vscode.window.showInformationMessage("Distraction Reducer Disabled");
       }
     } catch (error) {
       console.error(`Error toggling text masking: ${error.message}`);
@@ -391,7 +494,6 @@ function activate(context) {
     }
   }
 
-  // Apply text masking to an editor
   function applyTextMasking(editor) {
     if (!textMaskingEnabled || !editor) return;
 
@@ -409,15 +511,12 @@ function activate(context) {
     }
   }
 
-  // Function to toggle color overlay without requiring active editor
   function toggleColorOverlayFeature(enabled, color, opacity) {
     try {
       if (enabled) {
-        // Create or update the overlay
         updateColorOverlay(color, opacity);
         vscode.window.showInformationMessage("Color overlay enabled");
       } else {
-        // Clear overlay from all visible editors
         if (overlayColorDecoration) {
           vscode.window.visibleTextEditors.forEach((editor) => {
             editor.setDecorations(overlayColorDecoration, []);
@@ -432,12 +531,10 @@ function activate(context) {
     }
   }
 
-  // Update overlay color and apply to all editors
   function updateColorOverlay(color, opacity) {
     try {
-      // Convert hex color and opacity to RGBA format
       if (!color || !color.startsWith("#")) {
-        color = "#FFFFFF"; // Default to white if invalid color
+        color = "#FFFFFF";
       }
 
       const hexColor = color.replace("#", "");
@@ -446,14 +543,12 @@ function activate(context) {
       const b = parseInt(hexColor.substr(4, 2), 16);
       const a = opacity !== undefined ? opacity : 0.2;
 
-      // Create or recreate the decoration type
       const oldOverlay = overlayColorDecoration;
       overlayColorDecoration = vscode.window.createTextEditorDecorationType({
         backgroundColor: `rgba(${r}, ${g}, ${b}, ${a})`,
         isWholeLine: true,
       });
 
-      // Apply to all visible editors
       vscode.window.visibleTextEditors.forEach((editor) => {
         try {
           const ranges = [];
@@ -463,7 +558,6 @@ function activate(context) {
           }
           editor.setDecorations(overlayColorDecoration, ranges);
 
-          // Clear old decorations
           if (oldOverlay) {
             editor.setDecorations(oldOverlay, []);
           }
@@ -477,22 +571,18 @@ function activate(context) {
     }
   }
 
-  // Function to toggle line focus without requiring active editor
   function toggleLineFocus(enabled) {
     try {
-      // Clean up previous listener if exists
       if (readingGuideDisposable) {
         readingGuideDisposable.dispose();
         readingGuideDisposable = null;
       }
 
-      // Clear existing decorations from all editors
       vscode.window.visibleTextEditors.forEach((editor) => {
         editor.setDecorations(readingGuideDecorationType, []);
       });
 
       if (enabled) {
-        // Set up new listener for selection changes
         readingGuideDisposable = vscode.window.onDidChangeTextEditorSelection((event) => {
           try {
             const editor = event.textEditor;
@@ -505,7 +595,6 @@ function activate(context) {
           }
         });
 
-        // Apply to current editor
         const editor = vscode.window.activeTextEditor;
         if (editor) {
           try {
@@ -526,7 +615,81 @@ function activate(context) {
     }
   }
 
-  // Dictionary lookup function
+  function updateCursorTrackingDecorations(editor) {
+    if (!cursorTrackingEnabled || !editor) return;
+
+    try {
+      const selection = editor.selection;
+      let highlightRange;
+      
+      if (selection.isEmpty) {
+        highlightRange = editor.document.getWordRangeAtPosition(selection.active);
+      } else {
+        highlightRange = new vscode.Range(selection.start, selection.end);
+      }
+      
+      if (highlightRange) {
+        // Set the cursor tracking decoration
+        editor.setDecorations(cursorTrackingDecorationType, [highlightRange]);
+        
+        // Create ranges for all text except the highlighted portion
+        const fullRange = new vscode.Range(
+          new vscode.Position(0, 0),
+          new vscode.Position(editor.document.lineCount, 0)
+        );
+        
+        // Create a range that excludes the highlighted portion
+        const ranges = [];
+        
+        // Add range before the highlight
+        if (highlightRange.start.line > 0) {
+          ranges.push(new vscode.Range(
+            new vscode.Position(0, 0),
+            new vscode.Position(highlightRange.start.line, 0)
+          ));
+        }
+        
+        // Add lines before the highlight on the same line
+        if (highlightRange.start.character > 0) {
+          ranges.push(new vscode.Range(
+            new vscode.Position(highlightRange.start.line, 0),
+            highlightRange.start
+          ));
+        }
+        
+        // Add lines after the highlight on the same line
+        const line = editor.document.lineAt(highlightRange.end.line);
+        if (highlightRange.end.character < line.text.length) {
+          ranges.push(new vscode.Range(
+            highlightRange.end,
+            new vscode.Position(highlightRange.end.line, line.text.length)
+          ));
+        }
+        
+        // Add range after the highlight
+        if (highlightRange.end.line < editor.document.lineCount - 1) {
+          ranges.push(new vscode.Range(
+            new vscode.Position(highlightRange.end.line + 1, 0),
+            new vscode.Position(editor.document.lineCount, 0)
+          ));
+        }
+        
+        // Apply white text decoration to all other text
+        editor.setDecorations(textMaskingDecorationType, ranges);
+      } else {
+        // If no highlight range, white out everything
+        const fullRange = new vscode.Range(
+          new vscode.Position(0, 0),
+          new vscode.Position(editor.document.lineCount, 0)
+        );
+        editor.setDecorations(textMaskingDecorationType, [fullRange]);
+        editor.setDecorations(cursorTrackingDecorationType, []);
+      }
+    } catch (error) {
+      console.error(`Error updating cursor tracking decorations: ${error.message}`);
+    }
+  }
+
   function dictionaryLookup() {
     try {
       const editor = vscode.window.activeTextEditor;
@@ -552,7 +715,6 @@ function activate(context) {
     }
   }
 
-  // Register command to change font size
   let setFontSize = vscode.commands.registerCommand(
     "dyslexia-mitigation.setFontSize",
     async function () {
@@ -564,7 +726,6 @@ function activate(context) {
     }
   );
 
-  // Register command to change font family
   let setFontFamily = vscode.commands.registerCommand(
     "dyslexia-mitigation.setFontFamily",
     async function () {
@@ -578,7 +739,6 @@ function activate(context) {
     }
   );
 
-  // Register command to change line spacing
   let setLineSpacing = vscode.commands.registerCommand(
     "dyslexia-mitigation.setLineSpacing",
     async function () {
@@ -590,7 +750,6 @@ function activate(context) {
     }
   );
 
-  // text to speech Assistance
   let textToSpeech = vscode.commands.registerCommand(
     "dyslexia-mitigation.textToSpeech",
     async function () {
@@ -620,7 +779,6 @@ function activate(context) {
     }
   );
 
-  // Reading Guide Commands
   let enableReadingGuide = vscode.commands.registerCommand(
     "dyslexia-mitigation.enableReadingGuide",
     function () {
@@ -635,7 +793,6 @@ function activate(context) {
     }
   );
 
-  // Text Masking Command
   let toggleTextMasking = vscode.commands.registerCommand(
     "dyslexia-mitigation.toggleTextMasking",
     function () {
@@ -643,24 +800,34 @@ function activate(context) {
     }
   );
 
-  // Cursor Tracking Command
   let toggleCursorTracking = vscode.commands.registerCommand(
     "dyslexia-mitigation.toggleCursorTracking",
     function () {
       cursorTrackingEnabled = !cursorTrackingEnabled;
-      vscode.workspace
-        .getConfiguration("editor")
-        .update("cursorStyle", cursorTrackingEnabled ? "block" : "line", true);
-      vscode.workspace
-        .getConfiguration("editor")
-        .update("cursorBlinking", cursorTrackingEnabled ? "phase" : "solid", true);
-      vscode.window.showInformationMessage(
-        cursorTrackingEnabled ? "Cursor Tracking Enabled" : "Cursor Tracking Disabled"
-      );
+      
+      if (cursorTrackingEnabled) {
+        const editor = vscode.window.activeTextEditor;
+        if (editor) {
+          updateCursorTrackingDecorations(editor);
+        }
+        
+        context.subscriptions.push(
+          vscode.window.onDidChangeTextEditorSelection(event => {
+            updateCursorTrackingDecorations(event.textEditor);
+          })
+        );
+        
+        vscode.window.showInformationMessage("Cursor Tracking Enabled - Selected words highlighted");
+      } else {
+        vscode.window.visibleTextEditors.forEach(editor => {
+          editor.setDecorations(cursorTrackingDecorationType, []);
+          editor.setDecorations(textMaskingDecorationType, []);
+        });
+        vscode.window.showInformationMessage("Cursor Tracking Disabled");
+      }
     }
   );
 
-  // Color Overlay Command - renamed to avoid conflict with function name
   let toggleColorOverlayCommand = vscode.commands.registerCommand(
     "dyslexia-mitigation.toggleColorOverlay",
     async function () {
@@ -704,7 +871,6 @@ function activate(context) {
     }
   );
 
-  // Register commands
   context.subscriptions.push(
     showMenu,
     setFontSize,
@@ -718,16 +884,12 @@ function activate(context) {
     toggleColorOverlayCommand
   );
 
-  // Add better error handling
   process.on("uncaughtException", (error) => {
     console.error("Uncaught exception:", error);
     vscode.window.showErrorMessage(`Extension error: ${error.message}`);
   });
 }
 
-/**
- * This method is called when the extension is deactivated.
- */
 function deactivate() {}
 
 module.exports = {
