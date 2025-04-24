@@ -17,6 +17,7 @@ function activate(context) {
   let currentTrackingColor = 'blue';
   let currentLineFocusColor = 'yellow';
 
+
   function getRgbaColor(color) {
     switch(color) {
       case 'blue':
@@ -45,10 +46,20 @@ function activate(context) {
 
   function createTextMaskingDecorationType() {
     return vscode.window.createTextEditorDecorationType({
-      color: 'rgba(255, 255, 255, 1)', // White text
+      color: 'rgba(0, 0, 0, 0)', // black text
+      backgroundColor: 'rgba(0, 0, 0, 1)', //solid black background
       opacity: '1'
     });
   }
+
+  //TODO: api key implementation
+/*
+function apikey(){|
+current api:"Link"
+Purpo
+
+}
+*/
 
   function createReadingGuideDecorationType(color) {
     currentLineFocusColor = color;
