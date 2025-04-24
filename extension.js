@@ -52,15 +52,6 @@ function activate(context) {
     });
   }
 
-  //TODO: api key implementation
-/*
-function apikey(){|
-current api:"Link"
-Purpo
-
-}
-*/
-
   function createReadingGuideDecorationType(color) {
     currentLineFocusColor = color;
     switch(color) {
